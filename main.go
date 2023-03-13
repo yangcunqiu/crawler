@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
-	e := engine.DefaultEngine("https://book.douban.com", parser.ParseIndex)
+	// e := engine.DefaultEngine("https://book.douban.com", parser.ParseIndex)
+	// e := engine.DefaultEngine("https://book.douban.com/tag/当代文学", parser.ParseBookList)
+	e := engine.DefaultConcurrentEngine("https://book.douban.com", parser.ParseIndex)
 	e.Run()
 }

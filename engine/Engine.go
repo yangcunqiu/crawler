@@ -26,7 +26,7 @@ func (e *Engine) Run() {
 	for len(e.Tasks) > 0 {
 		task := e.Tasks[0]
 		if task.ParseFunc != nil {
-			time.Sleep(2 * time.Second)
+			time.Sleep(3 * time.Second)
 			content, err := fetcher.Fetch(task.Url)
 			if err != nil {
 				log.Printf("获取内容失败, url: %s, err: %v \n", task.Url, err)
@@ -35,7 +35,7 @@ func (e *Engine) Run() {
 			}
 
 			taskResult := task.ParseFunc(content)
-			log.Printf("解析成功, url: %s, item: %s \n 生成后续任务: %v \n", task.Url, taskResult.Item, taskResult.Tasks)
+			log.Printf("解析成功, url: %s, item: %s \n", task.Url, taskResult.Item)
 			if len(taskResult.Tasks) > 0 {
 				e.Tasks = append(e.Tasks, taskResult.Tasks...)
 			}

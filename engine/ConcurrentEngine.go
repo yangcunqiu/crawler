@@ -26,29 +26,34 @@ func DefaultConcurrentEngine(url string, parseFunc ParseFunc) *ConcurrentEngine 
 		in:        make(chan Task),
 		out:       make(chan *TaskResult),
 	}
-	e.Scheduler = &SimpleScheduler{
-		workerChan: e.in,
-	}
 	return e
 }
 
-func (e ConcurrentEngine) Run() {
+func (e *ConcurrentEngine) SetScheduler(s Scheduler) {
+	e.Scheduler = s
+}
+
+func (e *ConcurrentEngine) Run() {
+	e.Scheduler.Run()
+
 	for i := 0; i < e.workCount; i++ {
-		go createWorker(e.in, e.out)
+		go createWorker(e.Scheduler, e.out)
 	}
-	e.Scheduler.submit(e.task)
+	e.Scheduler.Submit(e.task)
 
 	for {
 		taskResult := <-e.out
 		log.Printf("解析成功, url: %s, item: %s \n", e.task.Url, taskResult.Item)
 		for _, t := range taskResult.Tasks {
-			e.Scheduler.submit(t)
+			e.Scheduler.Submit(t)
 		}
 	}
 }
 
-func createWorker(in chan Task, out chan *TaskResult) {
+func createWorker(s Scheduler, out chan *TaskResult) {
+	in := s.WorkChan()
 	for {
+		s.WorkReady(in)
 		task := <-in
 		taskResult, err := work(task)
 

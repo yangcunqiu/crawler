@@ -4,12 +4,12 @@ import (
 	"crawler/fetcher"
 	"log"
 	"regexp"
-	"time"
 )
 
 type Engine struct {
 	BaseUrl string
 	Tasks   []Task
+	Fetch   fetcher.Fetch
 }
 
 func DefaultEngine(url string, parseFunc ParseFunc) *Engine {
@@ -26,8 +26,8 @@ func (e *Engine) Run() {
 	for len(e.Tasks) > 0 {
 		task := e.Tasks[0]
 		if task.ParseFunc != nil {
-			time.Sleep(3 * time.Second)
-			content, err := fetcher.Fetch(task.Url)
+			e.Fetch.ConfigWaitTime()
+			content, err := e.Fetch.Fetch(task.Url)
 			if err != nil {
 				log.Printf("获取内容失败, url: %s, err: %v \n", task.Url, err)
 				e.Tasks = e.Tasks[1:]

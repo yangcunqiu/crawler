@@ -13,6 +13,7 @@ type ConcurrentEngine struct {
 	in        chan Task
 	out       chan *TaskResult
 	Scheduler Scheduler
+	Fetch     fetcher.Fetch
 }
 
 func DefaultConcurrentEngine(url string, parseFunc ParseFunc) *ConcurrentEngine {
@@ -33,11 +34,16 @@ func (e *ConcurrentEngine) SetScheduler(s Scheduler) {
 	e.Scheduler = s
 }
 
+func (e *ConcurrentEngine) SetFetch(f fetcher.Fetch) {
+	e.Fetch = f
+}
+
 func (e *ConcurrentEngine) Run() {
 	e.Scheduler.Run()
+	e.Fetch.ConfigWaitTime()
 
 	for i := 0; i < e.workCount; i++ {
-		go createWorker(e.Scheduler, e.out)
+		go createWorker(e.Scheduler, e.out, e.Fetch)
 	}
 	e.Scheduler.Submit(e.task)
 
@@ -50,12 +56,12 @@ func (e *ConcurrentEngine) Run() {
 	}
 }
 
-func createWorker(s Scheduler, out chan *TaskResult) {
+func createWorker(s Scheduler, out chan *TaskResult, fetch fetcher.Fetch) {
 	in := s.WorkChan()
 	for {
 		s.WorkReady(in)
 		task := <-in
-		taskResult, err := work(task)
+		taskResult, err := work(task, fetch)
 
 		if err != nil {
 			continue
@@ -64,12 +70,12 @@ func createWorker(s Scheduler, out chan *TaskResult) {
 	}
 }
 
-func work(task Task) (*TaskResult, error) {
+func work(task Task, fetch fetcher.Fetch) (*TaskResult, error) {
 	if task.ParseFunc == nil {
 		return nil, errors.New("parseFunc not nil")
 	}
 
-	content, err := fetcher.Fetch(task.Url)
+	content, err := fetch.Fetch(task.Url)
 	if err != nil {
 		log.Printf("获取内容失败, url: %s, err: %v \n", task.Url, err)
 		return nil, err

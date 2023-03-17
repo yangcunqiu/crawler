@@ -25,9 +25,10 @@ func (f *SimpleFetch) Fetch(url string) ([]byte, error) {
 	if f.waitChan != nil {
 		<-f.waitChan
 	}
+	log.Println("---")
 	client := utils.GetHttpClient()
 	resp, err := client.R().
-		SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36").
+		SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.69").
 		SetHeader("Accept", "text/event-stream").
 		Get(url)
 

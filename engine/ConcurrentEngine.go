@@ -2,6 +2,7 @@ package engine
 
 import (
 	"crawler/fetcher"
+	"crawler/manage"
 	"errors"
 	"log"
 )
@@ -14,6 +15,8 @@ type ConcurrentEngine struct {
 	out       chan *TaskResult
 	Scheduler Scheduler
 	Fetch     fetcher.Fetch
+	ItemChan  chan any
+	Manage    manage.Manage
 }
 
 func DefaultConcurrentEngine(url string, parseFunc ParseFunc) *ConcurrentEngine {
@@ -38,9 +41,21 @@ func (e *ConcurrentEngine) SetFetch(f fetcher.Fetch) {
 	e.Fetch = f
 }
 
+func (e *ConcurrentEngine) SetManage(m manage.Manage) {
+	e.Manage = m
+}
+
 func (e *ConcurrentEngine) Run() {
+	if e.Scheduler == nil {
+		panic("Scheduler not nil")
+	}
+	if e.Fetch == nil {
+		panic("Fetch not nil")
+	}
 	e.Scheduler.Run()
 	e.Fetch.ConfigWaitTime()
+	e.ItemChan = make(chan any)
+	e.ItemChan = e.Manage.Dispose()
 
 	for i := 0; i < e.workCount; i++ {
 		go createWorker(e.Scheduler, e.out, e.Fetch)
@@ -49,7 +64,11 @@ func (e *ConcurrentEngine) Run() {
 
 	for {
 		taskResult := <-e.out
-		log.Printf("解析成功, url: %s, item: %s \n", e.task.Url, taskResult.Item)
+		go func() {
+			for _, item := range taskResult.Item {
+				e.ItemChan <- item
+			}
+		}()
 		for _, t := range taskResult.Tasks {
 			e.Scheduler.Submit(t)
 		}

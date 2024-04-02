@@ -3,6 +3,7 @@ package com.cqyang.demo.crawler.medical;
 import com.alibaba.fastjson.JSON;
 import com.cqyang.demo.crawler.medical.model.FixedHospitalRequest;
 import com.cqyang.demo.crawler.medical.model.MedicalEncryptRequest;
+import com.cqyang.demo.crawler.medical.util.EncryptUtil;
 import org.junit.jupiter.api.Test;
 
 import javax.script.ScriptException;

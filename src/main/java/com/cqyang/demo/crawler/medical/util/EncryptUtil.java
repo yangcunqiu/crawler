@@ -1,4 +1,4 @@
-package com.cqyang.demo.crawler.medical;
+package com.cqyang.demo.crawler.medical.util;
 
 import com.cqyang.demo.crawler.medical.builder.MedicalBuilder;
 import com.cqyang.demo.crawler.medical.model.FixedHospitalRequest;
@@ -42,7 +42,7 @@ public class EncryptUtil {
         return null;
     }
 
-    public static <T> MedicalPageResponse<T> decrypt(MedicalEncryptResponse medicalEncryptResponse, MedicalBuilder<T> medicalBuilder) throws ScriptException {
+    public static <T, R> MedicalPageResponse<T> decrypt(MedicalEncryptResponse medicalEncryptResponse, MedicalBuilder<T, R> medicalBuilder) throws ScriptException {
         scriptEngine.put("medicalEncryptResponse", medicalEncryptResponse);
         Object data = scriptEngine.eval("decryptMedical(medicalEncryptResponse)");
         if (data instanceof ScriptObjectMirror) {

@@ -14,7 +14,7 @@ public class TaskInfo extends BasicPO {
     // 爬虫
     private Integer CrawlerInfoId;
     private Integer crawlerScene;;
-    private String crawlerSceneDesc;;
+    private String crawlerSceneDesc;
     // 任务标识
     private String tag;
 }

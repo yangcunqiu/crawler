@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum MedicalEnum {
+public enum MedicalBizTypeEnum {
 
     FIXED_HOSPITAL(0, "定点医疗机构查询"),
     FIXED_RETAIL_PHARMACY(1, "定点零售药店查询")

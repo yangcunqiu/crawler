@@ -1,26 +1,29 @@
 package com.cqyang.demo.crawler.medical.builder;
 
-import com.alibaba.fastjson.JSON;
-import com.cqyang.demo.crawler.medical.EncryptUtil;
+import com.cqyang.demo.crawler.core.Crawler;
+import com.cqyang.demo.crawler.core.CrawlerRequestBuilder;
 import com.cqyang.demo.crawler.medical.model.MedicalEncryptRequest;
 import com.cqyang.demo.crawler.medical.model.MedicalPageResponse;
+import com.cqyang.demo.crawler.model.CrawlerContext;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.apache.commons.collections4.MapUtils;
 import us.codecraft.webmagic.Request;
-import us.codecraft.webmagic.model.HttpRequestBody;
 
 import javax.script.ScriptException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class MedicalBuilder<T> {
+public abstract class MedicalBuilder<T, R> extends CrawlerRequestBuilder {
 
     public abstract int getType();
 
     protected abstract String getUrl();
 
-    protected abstract MedicalEncryptRequest buildEncryptRequest() throws ScriptException;
+    protected abstract String getMethod();
+
+    protected abstract MedicalEncryptRequest buildEncryptRequest(R r) throws ScriptException;
 
     protected abstract T buildPageListData(ScriptObjectMirror scriptObjectMirror);
 
@@ -58,17 +61,25 @@ public abstract class MedicalBuilder<T> {
         return medicalPageResponse;
     }
 
-    public Request buildRequest() throws ScriptException {
+    public abstract void addRequest(Crawler crawler, CrawlerContext context);
+
+    protected abstract Map<String, Object> getHeader();
+
+    protected Request buildRequest(CrawlerContext context) {
         Request request = new Request();
-        request.setMethod("POST");
+        request.setMethod(getMethod());
         request.setUrl(getUrl());
 
-        Map<String, Object> header = EncryptUtil.getHeader();
+        Map<String, Object> header = getHeader();
         if (MapUtils.isNotEmpty(header)) {
             header.forEach((k, v) -> request.addHeader(k, String.valueOf(v)));
         }
 
-        request.setRequestBody(HttpRequestBody.json(JSON.toJSONString(buildEncryptRequest()), "UTF-8"));
+
+        // 扩展参数
+        Map<String, Object> extraMap = new HashMap<>();
+        extraMap.put("context", context);
+        request.setExtras(extraMap);
         return request;
     }
 }

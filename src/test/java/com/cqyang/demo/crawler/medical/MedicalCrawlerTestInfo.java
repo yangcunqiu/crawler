@@ -8,8 +8,6 @@ public class MedicalCrawlerTestInfo {
 
     @Test
     public void testCrawler() {
-        MedicalCrawler crawler = new MedicalCrawler();
-        crawler.listTask(0);
-        while (true){}
+
     }
 }

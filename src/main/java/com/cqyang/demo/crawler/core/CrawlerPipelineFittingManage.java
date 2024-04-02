@@ -2,7 +2,6 @@ package com.cqyang.demo.crawler.core;
 
 import com.alibaba.fastjson.JSON;
 import com.cqyang.demo.crawler.model.CrawlerFittingConfig;
-import com.cqyang.demo.crawler.model.CrawlerPipelineConfig;
 import com.cqyang.demo.crawler.model.enums.CrawlerFittingModuleTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import java.util.List;
 public class CrawlerPipelineFittingManage extends CrawlerFittingManage<CrawlerFittingConfig, Pipeline> {
 
     @Autowired
-    private List<CrawlerPipeline<? extends CrawlerPipelineConfig>> pipelines;
+    private List<CrawlerPipeline> pipelines;
 
     @Override
     public Integer fittingType() {

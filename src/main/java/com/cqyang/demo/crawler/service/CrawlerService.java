@@ -1,5 +1,7 @@
 package com.cqyang.demo.crawler.service;
 
+import com.cqyang.demo.crawler.core.Crawler;
+import com.cqyang.demo.crawler.core.CrawlerManage;
 import com.cqyang.demo.crawler.model.enums.CrawlerSceneEnum;
 import com.cqyang.demo.crawler.model.request.AddCrawlerRequest;
 import com.cqyang.demo.crawler.model.vo.CrawlerFittingModuleVO;
@@ -26,6 +28,16 @@ public interface CrawlerService {
      * @param uniqueKey 唯一键
      */
     CrawlerInfoVO findByUniqueKey(long uniqueKey);
+
+    /**
+     * 获取爬虫
+     */
+    Crawler getCrawler(long uniqueKey);
+
+    /**
+     * 获取爬虫manage
+     */
+    CrawlerManage<?> getCrawlerManageByUniqueKey(long uniqueKey);
 
     /**
      * 启动爬虫

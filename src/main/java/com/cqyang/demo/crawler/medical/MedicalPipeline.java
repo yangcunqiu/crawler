@@ -1,7 +1,7 @@
 package com.cqyang.demo.crawler.medical;
 
 import com.cqyang.demo.crawler.core.CrawlerPipeline;
-import com.cqyang.demo.crawler.model.CrawlerPipelineConfig;
+import com.cqyang.demo.crawler.model.CrawlerContext;
 import com.cqyang.demo.crawler.model.enums.CrawlerModuleCodeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,14 +10,15 @@ import us.codecraft.webmagic.Task;
 
 @Slf4j
 @Component
-public class MedicalPipeline extends CrawlerPipeline<CrawlerPipelineConfig> {
+public class MedicalPipeline extends CrawlerPipeline {
     @Override
     protected String getModuleCode() {
         return CrawlerModuleCodeEnum.MEDICAL_PIPELINE.getCode();
     }
 
+
     @Override
-    protected void execute(ResultItems resultItems, Task task) {
+    protected void execute(ResultItems resultItems, Task task, CrawlerContext crawlerContext) {
 
     }
 

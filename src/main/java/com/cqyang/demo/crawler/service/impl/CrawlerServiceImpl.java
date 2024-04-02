@@ -5,6 +5,7 @@ import com.cqyang.demo.crawler.core.Crawler;
 import com.cqyang.demo.crawler.core.CrawlerDefaultPipeline;
 import com.cqyang.demo.crawler.core.CrawlerDefaultProcessor;
 import com.cqyang.demo.crawler.core.CrawlerFittingManage;
+import com.cqyang.demo.crawler.core.CrawlerManage;
 import com.cqyang.demo.crawler.exception.CrawlerException;
 import com.cqyang.demo.crawler.mapper.CrawlerConfigMapper;
 import com.cqyang.demo.crawler.mapper.CrawlerInfoMapper;
@@ -22,6 +23,7 @@ import com.cqyang.demo.crawler.model.vo.CrawlerInfoVO;
 import com.cqyang.demo.crawler.model.vo.CrawlerModuleVO;
 import com.cqyang.demo.crawler.service.CrawlerService;
 import com.cqyang.demo.crawler.util.SnowflakeIdUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +40,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class CrawlerServiceImpl implements CrawlerService {
 
     // 保存非停止状态的爬虫, key: 爬虫唯一键
     private final Map<Long, Crawler> crawlerMap = new HashMap<>();
+    @Autowired
+    private List<CrawlerManage<?>> crawlerManageList;
 
     @Autowired
     private List<CrawlerFittingManage<? extends CrawlerFittingConfig, ?>> fittingManages;
@@ -94,28 +99,34 @@ public class CrawlerServiceImpl implements CrawlerService {
 
         // 分配唯一键
         long uniqueKey = SnowflakeIdUtil.nextId();
-        crawler.setUUID(String.valueOf(uniqueKey));
+        try {
+            crawler.setUUID(String.valueOf(uniqueKey));
 
-        // 持久化
-        CrawlerInfo crawlerInfo = new CrawlerInfo();
-        crawlerInfo.setUniqueKey(uniqueKey);
-        crawlerInfo.setScene(scene);
-        crawlerInfo.setSceneDesc(sceneEnum.getDesc());
-        crawlerInfo.setStatus(CrawlerStatusEnum.INIT.getStatus());
-        crawlerInfoMapper.insert(crawlerInfo);
-        // 持久化配置
-        List<CrawlerConfig> crawlerConfigList = addCrawlerRequest.getCrawlerFittingModuleList().stream().map(module -> {
-            CrawlerConfig crawlerConfig = new CrawlerConfig();
-            crawlerConfig.setCrawlerUniqueKey(uniqueKey);
-            crawlerConfig.setFittingModuleType(module.getType());
-            crawlerConfig.setModuleCodeList(JSON.toJSONString(module.getCodeList()));
-            crawlerConfig.setFittingConfigJson(module.getFittingConfig());
-            return crawlerConfig;
-        }).collect(Collectors.toList());
-        crawlerConfigMapper.batchInsert(crawlerConfigList);
+            // 持久化
+            CrawlerInfo crawlerInfo = new CrawlerInfo();
+            crawlerInfo.setUniqueKey(uniqueKey);
+            crawlerInfo.setScene(scene);
+            crawlerInfo.setSceneDesc(sceneEnum.getDesc());
+            crawlerInfo.setStatus(CrawlerStatusEnum.INIT.getStatus());
+            crawlerInfoMapper.insert(crawlerInfo);
+            // 持久化配置
+            List<CrawlerConfig> crawlerConfigList = addCrawlerRequest.getCrawlerFittingModuleList().stream().map(module -> {
+                CrawlerConfig crawlerConfig = new CrawlerConfig();
+                crawlerConfig.setCrawlerUniqueKey(uniqueKey);
+                crawlerConfig.setFittingModuleType(module.getType());
+                crawlerConfig.setModuleCodeList(JSON.toJSONString(module.getCodeList()));
+                crawlerConfig.setFittingConfigJson(module.getFittingConfig());
+                return crawlerConfig;
+            }).collect(Collectors.toList());
+            crawlerConfigMapper.batchInsert(crawlerConfigList);
 
-        // 放到map
-        crawlerMap.put(uniqueKey, crawler);
+            // 放到map
+            crawlerMap.put(uniqueKey, crawler);
+        } catch (Exception e) {
+            crawlerMap.remove(uniqueKey);
+            log.error("init crawler fail, ", e);
+            throw new CrawlerException("init crawler fail");
+        }
 
         // 启动爬虫
         if (addCrawlerRequest.isRunAsync()) {
@@ -173,6 +184,25 @@ public class CrawlerServiceImpl implements CrawlerService {
 
         vo.setFittingModuleVOList(fittingModuleVOList);
         return vo;
+    }
+
+    @Override
+    public Crawler getCrawler(long uniqueKey) {
+        return crawlerMap.get(uniqueKey);
+    }
+
+    @Override
+    public CrawlerManage<?> getCrawlerManageByUniqueKey(long uniqueKey) {
+        CrawlerInfo byUniqueKey = crawlerInfoMapper.findByUniqueKey(uniqueKey);
+        if (Objects.isNull(byUniqueKey)) {
+            throw new CrawlerException("爬虫不存在");
+        }
+        for (CrawlerManage<?> crawlerManage : crawlerManageList) {
+            if (Objects.equals(crawlerManage.getScene(), byUniqueKey.getScene())) {
+                return crawlerManage;
+            }
+        }
+        return null;
     }
 
     @Override

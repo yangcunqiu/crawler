@@ -1,19 +1,35 @@
 package com.cqyang.demo.crawler.medical.builder;
 
-import com.cqyang.demo.crawler.medical.EncryptUtil;
+import com.alibaba.fastjson.JSON;
+import com.cqyang.demo.crawler.core.Crawler;
+import com.cqyang.demo.crawler.medical.model.MedicalRegion;
+import com.cqyang.demo.crawler.medical.util.EncryptUtil;
 import com.cqyang.demo.crawler.medical.model.FixedHospital;
 import com.cqyang.demo.crawler.medical.model.FixedHospitalRequest;
 import com.cqyang.demo.crawler.medical.model.MedicalEncryptRequest;
-import com.cqyang.demo.crawler.medical.model.enums.MedicalEnum;
+import com.cqyang.demo.crawler.medical.model.enums.MedicalBizTypeEnum;
+import com.cqyang.demo.crawler.medical.util.RegionUtil;
+import com.cqyang.demo.crawler.model.CrawlerContext;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.model.HttpRequestBody;
 
 import javax.script.ScriptException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class FixedHospitalBuilder extends MedicalBuilder<FixedHospital> {
+@Component
+@Slf4j
+public class FixedHospitalBuilder extends MedicalBuilder<FixedHospital, FixedHospitalRequest> {
 
     @Override
     public int getType() {
-        return MedicalEnum.FIXED_HOSPITAL.getType();
+        return MedicalBizTypeEnum.FIXED_HOSPITAL.getType();
     }
 
     @Override
@@ -22,11 +38,12 @@ public class FixedHospitalBuilder extends MedicalBuilder<FixedHospital> {
     }
 
     @Override
-    protected MedicalEncryptRequest buildEncryptRequest() throws ScriptException {
-        FixedHospitalRequest fixedHospitalRequest = new FixedHospitalRequest();
-        fixedHospitalRequest.setRegnCode("110000");
-        fixedHospitalRequest.setPageNum(1);
-        fixedHospitalRequest.setPageSize(10);
+    protected String getMethod() {
+        return "POST";
+    }
+
+    @Override
+    protected MedicalEncryptRequest buildEncryptRequest(FixedHospitalRequest fixedHospitalRequest) throws ScriptException {
         return EncryptUtil.encryptFixedHospital(fixedHospitalRequest);
     }
 
@@ -52,4 +69,35 @@ public class FixedHospitalBuilder extends MedicalBuilder<FixedHospital> {
         fixedHospital.setBusinessLvEbc(String.valueOf(scriptObjectMirror.get("businessLvEbc")));
         return fixedHospital;
     }
+
+    @Override
+    protected Map<String, Object> getHeader() {
+        try {
+            return EncryptUtil.getHeader();
+        } catch (ScriptException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void addRequest(Crawler crawler, CrawlerContext context) {
+        List<MedicalRegion> medicalRegionList = RegionUtil.getMedicalRegionList();
+        medicalRegionList.forEach(region -> {
+            try {
+                Request request = buildRequest(context);
+                // body
+                FixedHospitalRequest fixedHospitalRequest = new FixedHospitalRequest();
+                fixedHospitalRequest.setRegnCode(region.getAreaCode());
+                fixedHospitalRequest.setPageNum(1);
+                fixedHospitalRequest.setPageSize(10);
+                request.setRequestBody(HttpRequestBody.json(JSON.toJSONString(buildEncryptRequest(fixedHospitalRequest)), StandardCharsets.UTF_8.name()));
+                // add
+                crawler.addRequest(request);
+            } catch (Exception e) {
+                log.error("buildRequest fail, ", e);
+            }
+        });
+    }
+
+
 }

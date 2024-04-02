@@ -1,20 +1,17 @@
 package com.cqyang.demo.crawler.core;
 
-import com.cqyang.demo.crawler.model.CrawlerProcessorConfig;
+import com.cqyang.demo.crawler.model.CrawlerContext;
 import com.cqyang.demo.crawler.model.enums.CrawlerModuleCodeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.Request;
-
-import java.util.List;
 
 /**
  * 默认processor
  */
 @Component
 @Slf4j
-public class CrawlerDefaultProcessor extends CrawlerProcessor<CrawlerProcessorConfig> {
+public class CrawlerDefaultProcessor extends CrawlerProcessor {
 
     @Override
     public String getModuleCode() {
@@ -22,12 +19,7 @@ public class CrawlerDefaultProcessor extends CrawlerProcessor<CrawlerProcessorCo
     }
 
     @Override
-    protected List<Request> buildRequest(CrawlerProcessorConfig config) {
-        return null;
-    }
-
-    @Override
-    protected void execute(Page page) {
+    protected void execute(Page page, CrawlerContext context) {
         log.info("CrawlerDefaultProcessor execute");
     }
 }

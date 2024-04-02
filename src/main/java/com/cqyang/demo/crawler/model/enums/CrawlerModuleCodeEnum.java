@@ -9,12 +9,15 @@ import org.apache.commons.lang3.StringUtils;
 public enum CrawlerModuleCodeEnum {
 
     // processor
-    DEFAULT_PROCESSOR("defaultProcessor", "CrawlerDefaultProcessor", "默认processor", CrawlerFittingModuleTypeEnum.PROCESSOR),
-    MEDICAL_PROCESSOR("medicalProcessor", "MedicalProcessor", "医保processor", CrawlerFittingModuleTypeEnum.PROCESSOR),
+    DEFAULT_PROCESSOR("defaultProcessor", "com.cqyang.demo.crawler.core.CrawlerDefaultProcessor", "默认processor", CrawlerFittingModuleTypeEnum.PROCESSOR),
+    MEDICAL_PROCESSOR("medicalProcessor", "com.cqyang.demo.crawler.medical.MedicalProcessor", "医保processor", CrawlerFittingModuleTypeEnum.PROCESSOR),
 
     // pipeline
-    DEFAULT_PIPELINE("defaultPipeline", "CrawlerDefaultPipeline", "默认pipeline", CrawlerFittingModuleTypeEnum.PIPELINE),
-    MEDICAL_PIPELINE("medicalPipeline", "MedicalPipeline", "医保pipeline", CrawlerFittingModuleTypeEnum.PIPELINE),
+    DEFAULT_PIPELINE("defaultPipeline", "com.cqyang.demo.crawler.core.CrawlerDefaultPipeline", "默认pipeline", CrawlerFittingModuleTypeEnum.PIPELINE),
+    MEDICAL_PIPELINE("medicalPipeline", "com.cqyang.demo.crawler.medical.MedicalPipeline", "医保pipeline", CrawlerFittingModuleTypeEnum.PIPELINE),
+
+    // basic
+    DEFAULT_BASIC("defaultBasic", "com.cqyang.demo.crawler.core.CrawlerModule", "默认基础属性组装", CrawlerFittingModuleTypeEnum.BASIC),
 
 
     ;

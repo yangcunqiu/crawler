@@ -94,6 +94,7 @@ public class CrawlerServiceImpl implements CrawlerService {
 
         // 分配唯一键
         long uniqueKey = SnowflakeIdUtil.nextId();
+        crawler.setUUID(String.valueOf(uniqueKey));
 
         // 持久化
         CrawlerInfo crawlerInfo = new CrawlerInfo();

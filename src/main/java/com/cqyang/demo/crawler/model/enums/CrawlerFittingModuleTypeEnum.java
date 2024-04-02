@@ -12,6 +12,7 @@ public enum CrawlerFittingModuleTypeEnum {
 
     PROCESSOR(0, "process", 0),
     PIPELINE(1, "pipeline", 1),
+    BASIC(2, "basic", 2),
 
 
     ;

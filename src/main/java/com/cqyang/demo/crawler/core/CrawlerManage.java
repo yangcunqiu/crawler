@@ -39,7 +39,8 @@ public abstract class CrawlerManage<T> {
      * @param tag 任务标识
      * @param configJson 配置json
      */
-    public void addTask(Crawler crawler, String tag, String configJson, CrawlerContext context) {
+    public void addTask(Crawler crawler, String tag, Long uniqueKy, String configJson, CrawlerContext context) {
+        context.setTaskUniqueKey(uniqueKy);
         invoke0(crawler, tag, getConfig(configJson), context);
     }
 }

@@ -15,24 +15,22 @@ import java.util.Map;
 @Component
 public abstract class CrawlerProcessor extends CrawlerModule implements PageProcessor {
 
-
-
     @Override
     public void process(Page page) {
-        CrawlerContext crawlerContext = getCrawlerContext(page);
-
-
         log.info("CrawlerProcessor process");
+        CrawlerContext crawlerContext = getCrawlerContext(page);
+        String rawText = page.getRawText();
+        crawlerContext.setRawText(rawText);
 
+        // 拿到采集到的数据
+        String data = parseData(page, crawlerContext);
+        crawlerContext.setData(data);
 
-
+        // 执行各自逻辑
         execute(page, crawlerContext);
-
-        // 保存一下最原始的数据
-
     }
 
-    protected abstract void execute(Page page, CrawlerContext context);
+    protected void execute(Page page, CrawlerContext context) {}
 
-
+    protected abstract String parseData(Page page, CrawlerContext context);
 }

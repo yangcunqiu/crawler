@@ -15,6 +15,7 @@ public class AddTaskRequest {
     @NotNull
     private Long crawlerUniqueKey;
 
+    @NotNull
     private String tag;
 
     private String configJson;

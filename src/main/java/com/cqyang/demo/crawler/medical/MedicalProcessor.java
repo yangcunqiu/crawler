@@ -2,6 +2,7 @@ package com.cqyang.demo.crawler.medical;
 
 import com.alibaba.fastjson.JSON;
 import com.cqyang.demo.crawler.core.CrawlerProcessor;
+import com.cqyang.demo.crawler.core.CrawlerRequestBuilder;
 import com.cqyang.demo.crawler.medical.builder.MedicalBuilder;
 import com.cqyang.demo.crawler.medical.model.MedicalEncryptResponse;
 import com.cqyang.demo.crawler.medical.model.MedicalPageResponse;
@@ -27,19 +28,21 @@ public class MedicalProcessor extends CrawlerProcessor {
 
 
     @Override
-    protected void execute(Page page, CrawlerContext context) {
-        log.info("MedicalProcessor execute");
-        String rawText = page.getRawText();
-        if (StringUtils.isNotBlank(rawText)) {
-            try {
-//                MedicalEncryptResponse medicalEncryptResponse = JSON.parseObject(rawText, MedicalEncryptResponse.class);
-//                Map<String, Object> extras = page.getRequest().getExtras();
-//                MedicalBuilder<?> medicalBuilder = (MedicalBuilder<?>) extras.get("medicalBuilder");
-//                MedicalPageResponse<?> decrypt = EncryptUtil.decrypt(medicalEncryptResponse, medicalBuilder);
-//                page.putField("page", decrypt);
-            } catch (Exception e) {
-                log.error("execute fail, ", e);
-            }
+    protected String parseData(Page page, CrawlerContext context) {
+        String rawText = context.getRawText();
+        if (StringUtils.isBlank(rawText)) {
+            return null;
+        }
+        try {
+            MedicalEncryptResponse medicalEncryptResponse = JSON.parseObject(rawText, MedicalEncryptResponse.class);
+
+            MedicalBuilder<?, ?> builder = context.getBuilder();
+            MedicalPageResponse<?> decrypt = EncryptUtil.decrypt(medicalEncryptResponse, builder);
+
+            return JSON.toJSONString(decrypt);
+        } catch (Exception e) {
+            log.error("execute fail, ", e);
+            return null;
         }
     }
 

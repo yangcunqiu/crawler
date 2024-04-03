@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cqyang.demo.crawler.mapper.CollectDetailMapper">
+
+    <insert id="insert">
+        insert into collect_detail(task_unique_key, task_tag, request_unique_key, collect_list_id, unique_key, keyword, data, status) VALUE
+            (
+                #{taskUniqueKey}, #{taskTag}, #{requestUniqueKey}, #{collectListId}, #{uniqueKey}, #{keyword}, #{data}, #{status}
+                )
+    </insert>
+</mapper>

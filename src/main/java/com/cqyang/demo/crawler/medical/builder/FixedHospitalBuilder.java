@@ -13,6 +13,8 @@ import com.cqyang.demo.crawler.model.CrawlerContext;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.model.HttpRequestBody;
@@ -22,6 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -82,22 +87,52 @@ public class FixedHospitalBuilder extends MedicalBuilder<FixedHospital, FixedHos
     @Override
     public void addRequest(Crawler crawler, CrawlerContext context) {
         List<MedicalRegion> medicalRegionList = RegionUtil.getMedicalRegionList();
+        // TODO 只拿5条测试
+        medicalRegionList = medicalRegionList.stream().limit(5).collect(Collectors.toList());
         medicalRegionList.forEach(region -> {
             try {
-                Request request = buildRequest(context);
-                // body
-                FixedHospitalRequest fixedHospitalRequest = new FixedHospitalRequest();
-                fixedHospitalRequest.setRegnCode(region.getAreaCode());
-                fixedHospitalRequest.setPageNum(1);
-                fixedHospitalRequest.setPageSize(10);
-                request.setRequestBody(HttpRequestBody.json(JSON.toJSONString(buildEncryptRequest(fixedHospitalRequest)), StandardCharsets.UTF_8.name()));
-                // add
-                crawler.addRequest(request);
+                String regionCode = getRegionCode(region);
+                if (StringUtils.isNotBlank(regionCode)) {
+                    Request request = buildRequest(context);
+                    // body
+                    FixedHospitalRequest fixedHospitalRequest = new FixedHospitalRequest();
+                    fixedHospitalRequest.setRegnCode(regionCode);
+                    fixedHospitalRequest.setPageNum(1);
+                    fixedHospitalRequest.setPageSize(10);
+                    request.setRequestBody(HttpRequestBody.json(JSON.toJSONString(buildEncryptRequest(fixedHospitalRequest)), StandardCharsets.UTF_8.name()));
+                    // keyword
+                    context.setKeyword(JSON.toJSONString(fixedHospitalRequest));
+                    // uniqueKey
+                    context.setCollectUniqueKey(getCollectUniqueKey(region, fixedHospitalRequest));
+                    // add
+                    crawler.addRequest(request);
+                }
             } catch (Exception e) {
                 log.error("buildRequest fail, ", e);
             }
         });
     }
 
+
+
+    private String getCollectUniqueKey(MedicalRegion medicalRegion, FixedHospitalRequest fixedHospitalRequest) {
+        return Optional.ofNullable(medicalRegion.getProvinceName()).orElse("")
+                + Optional.ofNullable(medicalRegion.getCityName()).orElse("")
+                + Optional.ofNullable(medicalRegion.getAreaCode()).orElse("")
+                + fixedHospitalRequest.getPageNum() + "-" + fixedHospitalRequest.getPageSize();
+    }
+
+    private String getRegionCode(MedicalRegion region) {
+        if (StringUtils.isNotBlank(region.getAreaCode())) {
+            return region.getAreaCode();
+        }
+        if (StringUtils.isNotBlank(region.getCityCode())) {
+            return region.getCityCode();
+        }
+        if (StringUtils.isNotBlank(region.getProvinceCode())) {
+            return region.getProvinceCode();
+        }
+        return null;
+    }
 
 }

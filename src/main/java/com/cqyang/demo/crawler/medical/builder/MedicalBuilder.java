@@ -17,12 +17,6 @@ import java.util.Map;
 
 public abstract class MedicalBuilder<T, R> extends CrawlerRequestBuilder {
 
-    public abstract int getType();
-
-    protected abstract String getUrl();
-
-    protected abstract String getMethod();
-
     protected abstract MedicalEncryptRequest buildEncryptRequest(R r) throws ScriptException;
 
     protected abstract T buildPageListData(ScriptObjectMirror scriptObjectMirror);
@@ -63,23 +57,4 @@ public abstract class MedicalBuilder<T, R> extends CrawlerRequestBuilder {
 
     public abstract void addRequest(Crawler crawler, CrawlerContext context);
 
-    protected abstract Map<String, Object> getHeader();
-
-    protected Request buildRequest(CrawlerContext context) {
-        Request request = new Request();
-        request.setMethod(getMethod());
-        request.setUrl(getUrl());
-
-        Map<String, Object> header = getHeader();
-        if (MapUtils.isNotEmpty(header)) {
-            header.forEach((k, v) -> request.addHeader(k, String.valueOf(v)));
-        }
-
-
-        // 扩展参数
-        Map<String, Object> extraMap = new HashMap<>();
-        extraMap.put("context", context);
-        request.setExtras(extraMap);
-        return request;
-    }
 }

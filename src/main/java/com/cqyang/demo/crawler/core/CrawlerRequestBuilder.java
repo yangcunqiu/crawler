@@ -34,7 +34,7 @@ public abstract class CrawlerRequestBuilder {
 
         // 扩展参数
         Map<String, Object> extraMap = new HashMap<>();
-        extraMap.put("context", context);
+        extraMap.put(CrawlerContext.EXTRA_KEY, context);
         request.setExtras(extraMap);
         return request;
     }

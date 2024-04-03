@@ -18,8 +18,9 @@ public class CrawlerDefaultProcessor extends CrawlerProcessor {
         return CrawlerModuleCodeEnum.DEFAULT_PROCESSOR.getCode();
     }
 
+
     @Override
-    protected void execute(Page page, CrawlerContext context) {
-        log.info("CrawlerDefaultProcessor execute");
+    protected String parseData(Page page, CrawlerContext context) {
+        return null;
     }
 }

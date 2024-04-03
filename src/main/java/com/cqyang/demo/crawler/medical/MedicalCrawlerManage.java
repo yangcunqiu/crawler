@@ -5,15 +5,12 @@ import com.cqyang.demo.crawler.core.Crawler;
 import com.cqyang.demo.crawler.core.CrawlerManage;
 import com.cqyang.demo.crawler.exception.CrawlerException;
 import com.cqyang.demo.crawler.medical.builder.MedicalBuilder;
-import com.cqyang.demo.crawler.medical.model.MedicalRegion;
 import com.cqyang.demo.crawler.medical.model.enums.MedicalBizTypeEnum;
-import com.cqyang.demo.crawler.medical.util.RegionUtil;
 import com.cqyang.demo.crawler.model.CrawlerContext;
 import com.cqyang.demo.crawler.model.enums.CollectTypeEnum;
 import com.cqyang.demo.crawler.model.enums.CrawlerSceneEnum;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -60,9 +57,10 @@ public class MedicalCrawlerManage extends CrawlerManage<MedicalConfig> {
             throw new CrawlerException("医保局Request builder为null");
         }
 
-        context.setTaskType(CollectTypeEnum.COLLECT_LIST.getType());
+        context.setCollectType(CollectTypeEnum.COLLECT_LIST.getType());
 
-
+        context.setBuilder(builder);
+        // 用每个业务的builder去添加Request
         builder.addRequest(crawler, context);
     }
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cqyang.demo.crawler.mapper.TaskInfoMapper">
+
+
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into task_info(crawler_unique_key, crawler_fitting_module_json, unique_key, tag, config_json) VALUE (
+            #{crawlerUniqueKey}, #{crawlerFittingModuleJson}, #{uniqueKey}, #{tag}, #{configJson}
+            )
+    </insert>
+</mapper>

@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public enum CollectTypeEnum {
     COLLECT_LIST(0, "采集列表"),
-    COLLECT_DETAIL(0, "采集详情"),
+    COLLECT_DETAIL(1, "采集详情"),
 
     ;
     private final int type;
